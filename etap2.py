@@ -30,11 +30,11 @@ class Client(threading.Thread):
         threading.Thread.__init__(self)
         self.client_id = client_id
         self.client_trolley = client_trolley
+        self.shopping_list = Client.generate_shopping_list()
         
 
     def run(self):
         while self.running:
-            self.generate_shopping_list()
             self.position = 0
             print("Klient %i próbuje pobrać wózek..." % self.client_id)
             self.take_trolley()
@@ -42,10 +42,12 @@ class Client(threading.Thread):
             self.shopping()
         
         
-    def generate_shopping_list(self):
-        self.number_of_products = random.randint(0,10)
-        for i in range(0,self.number_of_products):
-            self.shopping_list.append(random.randint(1,PRODUCT_NUMBEROF))
+    def generate_shopping_list():
+        shopping_list = []
+        number_of_products = random.randint(0,10)
+        for i in range(number_of_products):
+            shopping_list.append(random.choice(list(PRODUCTS.keys())))
+        return shopping_list
 
     def take_trolley(self):
         trolley = self.client_trolley
@@ -87,8 +89,7 @@ class Client(threading.Thread):
         print("Lista zakupów została skompletowana!")
         exit(0)
         pass
-        
-        
+      
 # TODO
 class Cashier():
     # Obsługuje klientów przez czas proporcjonalny do dł. listy zakupów
@@ -97,9 +98,11 @@ class Cashier():
 # Główna fukncja programu
 def simulation():
     # Tworzenie wątków
-    #clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
-    print(len(shelves))
-    clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(2)]
+    clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
+    
+    #for i in range(CLIENT_NUMBEROF):
+    #    print("CLIENT ID: ",clients[i].client_id,"SHOPPING LIST: ",clients[i].shopping_list)
+
     # Uruchomienie wątków
     Client.running = True
     for c in clients:
