@@ -100,9 +100,6 @@ def simulation():
     # Tworzenie wątków
     clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
     
-    #for i in range(CLIENT_NUMBEROF):
-    #    print("CLIENT ID: ",clients[i].client_id,"SHOPPING LIST: ",clients[i].shopping_list)
-
     # Uruchomienie wątków
     Client.running = True
     for c in clients:
