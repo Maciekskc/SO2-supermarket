@@ -43,7 +43,7 @@ class Client(threading.Thread):
         
         
     def generate_shopping_list(self):
-        self.number_of_products = random.randint(1,PRODUCT_NUMBEROF)
+        self.number_of_products = random.randint(0,10)
         for i in range(0,self.number_of_products):
             self.shopping_list.append(random.randint(1,PRODUCT_NUMBEROF))
 
@@ -58,7 +58,34 @@ class Client(threading.Thread):
 
     # TODO 
     def shopping(self):
-        # Robimy zakupy wg. listy
+        #dopuki nie znajdziemy wszystkich zakupów
+        print(self.shopping_list)
+        while len(self.shopping_list)!=0:
+            #wyznaczamy następną półke z produktem
+            next_product = self.shopping_list[0]
+            next_target = self.shopping_list[0]//3
+            while self.position != next_target:
+                print("Klient "+ str(self.client_id)+ " znajduje sie przy półce "+ str(self.position)+" i kieruje się do półki "+ str(next_target)+" po kolejny produkt")
+                time.sleep(1)
+                if self.position > next_target:
+                    self.position = self.position - 1
+                if self.position < next_target:
+                    self.position = self.position+ 1
+            print("Klientowi "+ str(self.client_id) +" prubuje dostać się do półki ")   
+            locked=shelves[next_target-1].locked
+            if locked:
+                print("Klient "+str(self.client_id)+" dotarł do półki "+str(self.position)+", znalazł produkt! Pobiera go z półki i sprawdza czy zostało mu coś jeszcze na liście")
+                self.shopping_list.pop(0)
+                time.sleep(2)
+                print("Klientowi "+ str(self.client_id) +" pozostało " + str(len(self.shopping_list)) + " produktów!")
+                shelves[next_target-1].release
+            else:
+                time.sleep(1)
+                self.shopping_list.append(self.shopping_list[0]-1)
+                self.shopping_list.pop(0)
+                print("Klient "+ str(self.client_id) +" dotarł do półki " + str(self.position) + " jednak ktoś przy niej stoi, rusza więc po kolejny produkt")
+        print("Lista zakupów została skompletowana!")
+        exit(0)
         pass
         
         
@@ -70,8 +97,9 @@ class Cashier():
 # Główna fukncja programu
 def simulation():
     # Tworzenie wątków
-    clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
-
+    #clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
+    print(len(shelves))
+    clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(2)]
     # Uruchomienie wątków
     Client.running = True
     for c in clients:
