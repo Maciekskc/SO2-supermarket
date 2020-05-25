@@ -35,18 +35,18 @@ class Client(threading.Thread):
         threading.Thread.__init__(self)
         self.client_id = client_id
         self.client_trolley = client_trolley
-        self.shopping_list = Client.generate_shopping_list()
         
 
     def run(self):
         while self.running:
+            self.shopping_list = Client.generate_shopping_list()
             self.position = 0
             self.take_trolley()
-            self.state = "idzie po kolejny produkt"
             self.shopping()
             self.go_to_cash()
-            s
             self.client_trolley.release()
+            time.sleep(10)
+
         
         
     def generate_shopping_list():
@@ -58,17 +58,18 @@ class Client(threading.Thread):
 
     def take_trolley(self):
         trolley = self.client_trolley
-
         while self.running:
             locked = trolley.acquire(False)
+            self.state = "czeka na wózek"
             if locked:
+                self.state = "zabiera wózek"
+                time.sleep(0.7)
                 break
             # print("%i ma wózek i nie odda ;x" % self.client_id )
 
     # TODO 
     def shopping(self):
         #dopuki nie znajdziemy wszystkich zakupów
-        print(self.shopping_list)
         while len(self.shopping_list)!=0:
             #wyznaczamy następną półke z produktem
             self.state = "idzie po kolejny produkt"
@@ -103,21 +104,19 @@ class Client(threading.Thread):
         pass
 
     def go_to_cash(self):
-        while len(self.shopping_list)==0:
-            #wyznaczamy następną półke z produktem
-            self.state = "idzie do kasy"
-            next_target = PRODUCT_NUMBEROF//3 + 1
-            while self.position != next_target:
-                # print("Klient "+ str(self.client_id)+ " znajduje sie przy półce "+ str(self.position)+" i kieruje się do półki "+ str(next_target)+" po kolejny produkt")
-                time.sleep(1)
-                if self.position > next_target:
-                    self.position = self.position - 1
-                if self.position < next_target:
-                    self.position = self.position+ 1
-            self.state = "czeka na skasowanie produktów"
-            time.sleep(2)
-            self.state = "kończy zakupy i odkłada wózek"
-        pass
+        #wyznaczamy następną półke z produktem
+        self.state = "idzie do kasy"
+        next_target = PRODUCT_NUMBEROF//3 + 1
+        while self.position != next_target:
+            # print("Klient "+ str(self.client_id)+ " znajduje sie przy półce "+ str(self.position)+" i kieruje się do półki "+ str(next_target)+" po kolejny produkt")
+            time.sleep(1)
+            if self.position > next_target:
+                self.position = self.position - 1
+            if self.position < next_target:
+                self.position = self.position+ 1
+        self.state = "czeka na skasowanie produktów"
+        time.sleep(2)
+        self.state = "kończy zakupy i odkłada wózek"
             
     def __str__(self):
         return("Klient: "+str(self.client_id)+" znajduje się przy półce "+str(self.position)+" i kieruje się do półki "+str(self.next_product//3))
@@ -133,7 +132,6 @@ class Printer(threading.Thread):
     def __init__(self,client_list):
         threading.Thread.__init__(self)
         self.client_list = client_list
-        print("konstruktor W WYPISYWANIU ")
         
     def run(self):
         while self.running:
@@ -142,14 +140,15 @@ class Printer(threading.Thread):
             self.print_client_maps()
             for client in self.client_list:
                 print(client)
-            time.sleep(1)
+            time.sleep(0.3)
+            # exit(0)
 
     def print_clients_state(self):
         print("-----------------------------------------------------------------------------------")
         print("                Status klientów")
         print("-----------------------------------------------------------------------------------")
         for client in self.client_list:
-            print("     Klient: ["+str(client.client_id)+"]:"+str(client.state)+".  Pozostała lista zakupów: "+str(client.shopping_list))
+            print("Klient: ["+str(client.client_id)+"]:"+str(client.state)+".  Pozostała lista zakupów: "+str(client.shopping_list)+"ilość pozostałych produktów: "+str(len(client.shopping_list)))
         print("-----------------------------------------------------------------------------------")
 
     def print_client_maps(self):
