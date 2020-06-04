@@ -1,5 +1,5 @@
 # SYMULACJA SUPERMARKETU
-# Autor: Emilia Augustyn, Maciej Białkowski
+# Autor: Emilia Augustyn 241248, Maciej Białkowski 
 # Przedmiot: Systemy Operacyjne 2
 # Prowadzący: dr. inż Dominik Żelazny
 
@@ -17,7 +17,6 @@ SHELF_NUMBEROF = PRODUCT_NUMBEROF//3
 PRODUCTS = {1:"cheese", 2:"ham", 3:"butter", 4:"milk", 5:"yoghurt", 6:"juice", 7:"bread",\
             8:"tomatoes", 9:"cucumber", 10:"pasta"}
 
-# Zamki 
 trolleys = [threading.Lock() for i in range(TROLLEY_NUMBEROF)]
 shelves = [threading.Lock() for i in range(SHELF_NUMBEROF)]
 
@@ -28,7 +27,7 @@ class Client(threading.Thread):
     position=0
     next_product=0
     number_of_products = 0
-    state = "czeka na wózek"
+    state = "Czeka na wózek"
     shopping_list = []
     
     def __init__(self,client_id,client_trolley):
@@ -45,7 +44,7 @@ class Client(threading.Thread):
             self.shopping()
             self.go_to_cash()
             self.client_trolley.release()
-            time.sleep(10)
+            time.sleep(0.4+random.uniform(0,0.2))
 
         
         
@@ -60,71 +59,55 @@ class Client(threading.Thread):
         trolley = self.client_trolley
         while self.running:
             locked = trolley.acquire(False)
-            self.state = "czeka na wózek"
+            self.state = "Czeka na wózek"
             if locked:
-                self.state = "zabiera wózek"
-                time.sleep(0.7)
+                self.state = "Zabiera wózek"
+                time.sleep(0.4+random.uniform(0,0.2))
                 break
-            # print("%i ma wózek i nie odda ;x" % self.client_id )
 
-    # TODO 
     def shopping(self):
-        #dopuki nie znajdziemy wszystkich zakupów
         while len(self.shopping_list)!=0:
-            #wyznaczamy następną półke z produktem
-            self.state = "idzie po kolejny produkt"
+            self.state = "Idzie po kolejny produkt"
             self.next_product = self.shopping_list[0]
             next_target = self.shopping_list[0]//3
             while self.position != next_target:
-                # print("Klient "+ str(self.client_id)+ " znajduje sie przy półce "+ str(self.position)+" i kieruje się do półki "+ str(next_target)+" po kolejny produkt")
-                time.sleep(1)
+                time.sleep(0.4+random.uniform(0,0.2))
                 if self.position > next_target:
                     self.position = self.position - 1
                 if self.position < next_target:
                     self.position = self.position+ 1
-                # print("Klientowi "+ str(self.client_id) +" prubuje dostać się do półki ")  
-            self.state = "dotarł do półki z produktem" 
+            self.state = "Dotarł do półki z produktem" 
             locked=shelves[next_target-1].locked
             if locked:
-                # print("Klient "+str(self.client_id)+" dotarł do półki "+str(self.position)+", znalazł produkt! Pobiera go z półki i sprawdza czy zostało mu coś jeszcze na liście")
-                self.state = "bierze produkt z półki"
+                self.state = "Bierze produkt z półki"
                 self.shopping_list.pop(0)
-                time.sleep(2)
-                # print("Klientowi "+ str(self.client_id) +" pozostało " + str(len(self.shopping_list)) + " produktów!")
+                time.sleep(0.4+random.uniform(0,0.2))
                 shelves[next_target-1].release
             else:
-                self.state = "przy półce ktoś stoi, kieruje sie po kolejny produkt z listy"
-                time.sleep(1)
+                self.state = "Przy półce ktoś stoi, kieruje się po kolejny produkt z listy"
+                time.sleep(0.4+random.uniform(0,0.2))
                 self.shopping_list.append(self.shopping_list[0]-1)
                 self.shopping_list.pop(0)
-        self.state="lista zakupów jest skompletowana"
-        time.sleep(2)
-                # print("Klient "+ str(self.client_id) +" dotarł do półki " + str(self.position) + " jednak ktoś przy niej stoi, rusza więc po kolejny produkt")
-        # print("Lista zakupów została skompletowana!")
+        self.state="Lista zakupów jest skompletowana"
+        time.sleep(0.4+random.uniform(0,0.2))
         pass
 
     def go_to_cash(self):
-        #wyznaczamy następną półke z produktem
-        self.state = "idzie do kasy"
+        self.state = "Idzie do kasy"
         next_target = PRODUCT_NUMBEROF//3 + 1
         while self.position != next_target:
-            # print("Klient "+ str(self.client_id)+ " znajduje sie przy półce "+ str(self.position)+" i kieruje się do półki "+ str(next_target)+" po kolejny produkt")
-            time.sleep(1)
+            time.sleep(0.4+random.uniform(0,0.2))
             if self.position > next_target:
                 self.position = self.position - 1
             if self.position < next_target:
                 self.position = self.position+ 1
-        self.state = "czeka na skasowanie produktów"
-        time.sleep(2)
-        self.state = "kończy zakupy i odkłada wózek"
+        self.state = "Czeka na skasowanie produktów"
+        time.sleep(0.4+random.uniform(0,0.2))
+        self.state = "Kończy zakupy i odkłada wózek"
             
     def __str__(self):
         return("Klient: "+str(self.client_id)+" znajduje się przy półce "+str(self.position)+" i kieruje się do półki "+str(self.next_product//3))
       
-# TODO
-class Cashier():
-    # Obsługuje klientów przez czas proporcjonalny do dł. listy zakupów
-    pass
 
 
 class Printer(threading.Thread):
@@ -140,8 +123,7 @@ class Printer(threading.Thread):
             self.print_client_maps()
             for client in self.client_list:
                 print(client)
-            time.sleep(0.3)
-            # exit(0)
+            time.sleep(0.4+random.uniform(0,0.2))
 
     def print_clients_state(self):
         print("-----------------------------------------------------------------------------------")
@@ -155,18 +137,17 @@ class Printer(threading.Thread):
         print("-----------------------------------------------------")
         print("                Mapa")
         print("-----------------------------------------------------")
-        # TODO poprawić numeracje półek
-        # print(for i in range(1,SHELF_NUMBEROF): str(i) + "  ")
         for client in self.client_list:
             print("   " * client.position + "X")
         print("-----------------------------------------------------")
 
+
 # Główna fukncja programu
 def simulation():
-    # Tworzenie wątków
     clients = [Client(i,trolleys[i % TROLLEY_NUMBEROF]) for i in range(CLIENT_NUMBEROF)]
     
-    # Uruchomienie wątków
+    #random.seed(507129)
+
     Client.running = True
     for c in clients:
         c.start()

@@ -8,3 +8,5 @@ Maciej Białkowski.
 
 Opiekun projektu
 dr inż. Dominik Żelazny.
+
+Uruchamianie programu: python main.py
